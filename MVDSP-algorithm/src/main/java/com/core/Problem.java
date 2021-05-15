@@ -1,5 +1,16 @@
 package com.core;
 
+import com.graph.Edge;
+import com.graph.Mapping;
+import com.graph.Node;
+import com.graph.SuccessiveShortestPathAlgorithmWithCapacityScaling;
+import com.graphPainter.GraphPainter;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
+import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
+import org.jgrapht.graph.DefaultDirectedGraph;
+
+import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -8,17 +19,19 @@ import java.util.List;
 import java.util.Map;
 
 public class Problem {
-    private static final Duration DURATION_INFINIT = ChronoUnit.FOREVER.getDuration();;
+    private static final Duration DURATION_INFINIT = ChronoUnit.FOREVER.getDuration();
     private List<Location> locations;
     private Map<LocationPair, Duration> costMap;
     private Integer numberOfDepots = 0 ;
     private Integer numberOfTrips = 0;
 
     public Problem() {
-        /*this.trips = new ArrayList<>();
-        this.depots = new ArrayList<>();*/
         this.locations = new ArrayList<>();
         this.costMap = new HashMap<>();
+    }
+
+    public List<Location> getLocations() {
+        return locations;
     }
 
     public void addLocation(Location newLocation){
@@ -51,15 +64,11 @@ public class Problem {
         System.out.println("remove Location: is not implemented yet!");
     }
 
-    private boolean contains(LocationPair pair){
-        return costMap.containsKey(pair);
-    }
-
     public void setPairCost(Location source, Location destination, Duration cost){
         costMap.replace(new LocationPair(source, destination), cost);
     }
 
-    public Duration getPairCost(Location source, Location destination){
+    public Duration getPairTime(Location source, Location destination){
         if(source == null || destination == null){
             throw new NullPointerException();
         }
@@ -73,6 +82,19 @@ public class Problem {
         return costMap.get(new LocationPair(source, destination));
     }
 
+    public Duration getPairCost(Location source, Location destination) {
+        if (source instanceof Trip && destination instanceof Trip) { // trip -> trip
+                // max(deplasationTime, deplasationTime + waitingTime)
+                return maxBetweenDurations(
+                    getPairTime(source, destination),
+                    Duration.between(((Trip) source).getEndingTime(), ((Trip) destination).getStartingTime())
+                );
+        }
+        // else
+        // depot -> trip | trip -> depot | -> depot -> depot
+        return getPairTime(source, destination);
+    }
+
     private boolean checkIfRunnable(){
         boolean isRunnable = true;
         if(numberOfDepots < 1 || numberOfTrips < 1){
@@ -81,6 +103,64 @@ public class Problem {
         return isRunnable;
     }
 
+    public Duration getCostOfRoute(Route route) {
+        List<Location> actualRoute = route.getRoute();
+        if (actualRoute.size() < 3) {
+            throw new IllegalArgumentException();
+        }
+
+        // Add the duration between depot and first trip
+        Duration cost = getPairCost(actualRoute.get(0), actualRoute.get(1));
+        // Add the duration between last trip and depot
+        cost = cost.plus(getPairCost(actualRoute.get(actualRoute.size() - 2),
+                actualRoute.get(actualRoute.size() - 1))
+        );
+
+        // Add the duration between ending time of trip i and starting time of trip i + 1 for all the trips
+        for (int i = 1; i < actualRoute.size() - 3; ++i) {
+            if (actualRoute.get(i) instanceof Trip && actualRoute.get(i + 1) instanceof Trip) {
+                // add cost between t_i and t_i+1
+                cost = cost.plus(getPairCost(actualRoute.get(i), actualRoute.get(i + 1)));
+                // add cost of trip t_i
+                cost = cost.plus(((Trip) actualRoute.get(i)).getTripTimeCost());
+            }
+        }
+        // add cost for the last trip on this route
+        if (actualRoute.get(actualRoute.size() - 2) instanceof Trip) {
+            cost = cost.plus(((Trip) actualRoute.get(actualRoute.size() - 2)).getTripTimeCost());
+        }
+
+        return cost;
+    }
+
+    public void resolve() throws IOException {
+        Graph<Node, Edge> graph = Mapping.createGraph(this);
+        GraphPainter.paint(graph);
+
+        SuccessiveShortestPathAlgorithmWithCapacityScaling.resolve(graph);
+    }
+
+    @Override
+    public String toString() {
+        return "Problem{" +
+                "locations=" + locations +
+                ", costMap=" + costMap +
+                '}';
+    }
+
+    // AUXILIAR METHODS
+    private boolean contains(LocationPair pair){
+        return costMap.containsKey(pair);
+    }
+
+
+    private Duration maxBetweenDurations(Duration d1, Duration d2){
+        if(d1.compareTo(d2) >= 0){
+            return d1;
+        }else{
+            return d2;
+        }
+    }
 
     public void print(){
         System.out.println("Problem");
@@ -95,12 +175,4 @@ public class Problem {
         }
     }
 
-
-    @Override
-    public String toString() {
-        return "Problem{" +
-                "locations=" + locations +
-                ", costMap=" + costMap +
-                '}';
-    }
 }
