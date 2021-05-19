@@ -1,14 +1,8 @@
 package com.core;
 
-import com.graph.Edge;
-import com.graph.Mapping;
-import com.graph.Node;
-import com.graph.SuccessiveShortestPathAlgorithmWithCapacityScaling;
+import com.graph.*;
 import com.graphPainter.GraphPainter;
 import org.jgrapht.Graph;
-import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
-import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
-import org.jgrapht.graph.DefaultDirectedGraph;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -134,7 +128,7 @@ public class Problem {
     }
 
     public void resolve() throws IOException {
-        Graph<Node, Edge> graph = Mapping.createGraph(this);
+        Graph<Node, WeightEdge> graph = Mapping.createGraph(this);
         GraphPainter.paint(graph);
 
         SuccessiveShortestPathAlgorithmWithCapacityScaling.resolve(graph);

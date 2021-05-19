@@ -5,6 +5,7 @@ import com.core.Location;
 import com.core.Problem;
 import com.core.Trip;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 import java.time.Duration;
@@ -14,8 +15,8 @@ import java.util.List;
 
 public class Mapping {
 
-    public static Graph<Node, Edge> createGraph(Problem problem){
-        Graph<Node, Edge> graph = new DefaultDirectedWeightedGraph<>(Edge.class);
+    public static Graph<Node, WeightEdge> createGraph(Problem problem){
+        Graph<Node, WeightEdge> graph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
         List<Node> depots = new ArrayList<>();
         List<Node> trips = new ArrayList<>();
 
@@ -31,7 +32,7 @@ public class Mapping {
         return graph;
     }
 
-    private static void addDepotToGraph(Depot newDepot, Graph<Node, Edge> graph, List<Node> depots, List<Node> trips, Problem problem){
+    private static void addDepotToGraph(Depot newDepot, Graph<Node, WeightEdge> graph, List<Node> depots, List<Node> trips, Problem problem){
         // For each depot Di, add two nodes in V(G), representing a source and a sing
         // The capacity for source is number of available vehicles (the supply);
         // The capacity for sink is negate of number of available vehicles (the demand);
@@ -50,27 +51,27 @@ public class Mapping {
         for(Node trip : trips){
             if(!trip.isExitNode()){
                 // from depot source to trip startPoint
-                Edge depotToTripEdge = new Edge(0, 1);
-                graph.addEdge(depotSource, trip, depotToTripEdge);
-                graph.setEdgeWeight(depotToTripEdge, problem.getPairTime(depotSource.getLocation(), trip.getLocation()).toMinutes());
+                WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
+                graph.addEdge(depotSource, trip, depotToTripWeightEdge);
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairTime(depotSource.getLocation(), trip.getLocation()).toMinutes());
             }else{ //ending point
                 // from trip endPoint to depot sink
-                Edge tripToDepotEdge = new Edge(0, 1);
-                graph.addEdge(trip, depotSink, tripToDepotEdge);
-                graph.setEdgeWeight(tripToDepotEdge, problem.getPairTime(trip.getLocation(), depotSink.getLocation()).toMinutes());
+                WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
+                graph.addEdge(trip, depotSink, tripToDepotWeightEdge);
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairTime(trip.getLocation(), depotSink.getLocation()).toMinutes());
             }
         }
 
         // add arc from depot source to depot sink with lowerBound: 0 end upperBound: depot.numberOfAvailableVehicles
         // this arc is necessary when some vehicles in the depot are nod used
         Integer numberOfAvailableVehicles = ((Depot) depotSource.getLocation()).getNumberOfVehicles();
-        Edge sourceToSinkEdge = new Edge(0, numberOfAvailableVehicles);
-        graph.addEdge(depotSource, depotSink, sourceToSinkEdge);
-        graph.setEdgeWeight(sourceToSinkEdge, 0);
+        WeightEdge sourceToSinkWeightEdge = new BoundedWeightEdge(0, numberOfAvailableVehicles);
+        graph.addEdge(depotSource, depotSink, sourceToSinkWeightEdge);
+        graph.setEdgeWeight(sourceToSinkWeightEdge, 0);
 
     }
 
-    private static void addTripToGraph(Trip newTrip, Graph<Node, Edge> graph, List<Node> depots, List<Node> trips, Problem problem){
+    private static void addTripToGraph(Trip newTrip, Graph<Node, WeightEdge> graph, List<Node> depots, List<Node> trips, Problem problem){
         // For each trip add two nodes representing the startPoint and endPoint of a trip
         // The capacity of these nodes is 0 (are transit nodes)
         // create and add these this vertexes
@@ -80,23 +81,23 @@ public class Mapping {
         graph.addVertex(tripStart);
         graph.addVertex(tripEnd);
 
-        // Add edge from trip startPoint to trip endPoint
+        // Add weightEdgeWithBounders from trip startPoint to trip endPoint
         // lowerBound and upperBound for this edges is 1, because we are looking for solution that saturates all trips
-        Edge tripInternalEdge = new Edge(1,1);
-        graph.addEdge(tripStart, tripEnd, tripInternalEdge);
-        graph.setEdgeWeight(tripInternalEdge, 0);
+        WeightEdge tripInternalWeightEdge = new BoundedWeightEdge(1,1);
+        graph.addEdge(tripStart, tripEnd, tripInternalWeightEdge);
+        graph.setEdgeWeight(tripInternalWeightEdge, 0);
 
         for(Node depot : depots){
             if(depot.isExitNode()){ // is source
-                // add edge from depot source to trip startPoint
-                Edge depotToTripEdge = new Edge(0, 1);
-                graph.addEdge(depot, tripStart, depotToTripEdge);
-                graph.setEdgeWeight(depotToTripEdge, problem.getPairTime(depot.getLocation(), tripStart.getLocation()).toMinutes());
+                // add weightEdgeWithBounders from depot source to trip startPoint
+                WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
+                graph.addEdge(depot, tripStart, depotToTripWeightEdge);
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairTime(depot.getLocation(), tripStart.getLocation()).toMinutes());
             }else{ // is depot sink
-                // add edge from trip endPoint to depot sink
-                Edge tripToDepotEdge = new Edge(0, 1);
-                graph.addEdge(tripEnd, depot, tripToDepotEdge);
-                graph.setEdgeWeight(tripToDepotEdge, problem.getPairTime(tripEnd.getLocation(), depot.getLocation()).toMinutes());
+                // add weightEdgeWithBounders from trip endPoint to depot sink
+                WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
+                graph.addEdge(tripEnd, depot, tripToDepotWeightEdge);
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairTime(tripEnd.getLocation(), depot.getLocation()).toMinutes());
             }
         }
 
@@ -104,14 +105,14 @@ public class Mapping {
             if(otherTrip.isExitNode()){
                 // add feasible edges from all trips endPoints to this trip startPoint
                 if(isFeasibleEdge(otherTrip, tripStart, problem)){
-                    Edge otherTripToThisTrip =  new Edge(0, 1);
+                    WeightEdge otherTripToThisTrip =  new BoundedWeightEdge(0, 1);
                     graph.addEdge(otherTrip, tripStart, otherTripToThisTrip);
                     graph.setEdgeWeight(otherTripToThisTrip, problem.getPairCost(otherTrip.getLocation(), tripStart.getLocation()).toMinutes());
                 }
             }else{
                 // add feasible edges from this trip endPoint to all trips startPoints
                 if(isFeasibleEdge(tripEnd, otherTrip, problem)){
-                    Edge thisTripToOtherTrip = new Edge(0, 1);
+                    WeightEdge thisTripToOtherTrip = new BoundedWeightEdge(0, 1);
                     graph.addEdge(tripEnd, otherTrip, thisTripToOtherTrip);
                     graph.setEdgeWeight(thisTripToOtherTrip, problem.getPairCost(tripEnd.getLocation(), otherTrip.getLocation()).toMinutes());
                 }
@@ -142,7 +143,7 @@ public class Mapping {
             throw new IllegalArgumentException("isFeasibleEdge: the starting point and the end point do not have to belong to the same trip!");
         }
 
-        // if feasible edge if tripEndPoint.time + time between this two points <= tripStartPoint.time
+        // if feasible weightEdgeWithBounders if tripEndPoint.time + time between this two points <= tripStartPoint.time
         LocalTime tripEndPointTime = ((Trip)tripEndPoint.getLocation()).getEndingTime();
         Duration  timeBetweenTheseTrips = problem.getPairTime(tripEndPoint.getLocation(), tripStartPoint.getLocation());
         LocalTime tripStartPointTime = ((Trip)tripStartPoint.getLocation()).getStartingTime();
@@ -153,4 +154,24 @@ public class Mapping {
             return false;
         }
     }
+
+
+    public static Graph<Node, WeightEdge> createFlowGraph(Graph<Node, WeightEdge> graph, MinimumCostFlowAlgorithm.MinimumCostFlow<WeightEdge> minimumCostFlow){
+        Graph<Node, WeightEdge> flowGraph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
+        for(Node node : graph.vertexSet()){
+            flowGraph.addVertex(node);
+        }
+        for(WeightEdge weightEdge : minimumCostFlow.getFlowMap().keySet()){
+            if(minimumCostFlow.getFlow(weightEdge) > 0){
+                System.out.println("I need to add edge from " + weightEdge.getSourceNode() + " to " + weightEdge.getTargetNode() + " with flow "+ minimumCostFlow.getFlow(weightEdge));
+                flowGraph.addEdge((Node)weightEdge.getSourceNode(),
+                        (Node)weightEdge.getTargetNode());
+                flowGraph.setEdgeWeight((Node)weightEdge.getSourceNode(),
+                        (Node)weightEdge.getTargetNode(), minimumCostFlow.getFlow(weightEdge));
+            }
+        }
+        return flowGraph;
+    }
+
+
 }
