@@ -2,7 +2,9 @@ package com.graph;
 
 import com.core.Location;
 
-public class Node{
+import java.util.Objects;
+
+public class Node {
     private Location location;
     private Integer capacity;
     private boolean isExitNode;
@@ -36,5 +38,18 @@ public class Node{
             result.append("+");
         }
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Node)) return false;
+        Node node = (Node) o;
+        return isExitNode == node.isExitNode && location.equals(node.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location, isExitNode);
     }
 }

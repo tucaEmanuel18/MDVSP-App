@@ -1,5 +1,6 @@
 import com.core.Depot;
 import com.core.Problem;
+import com.core.Route;
 import com.core.Trip;
 
 import java.time.Duration;
@@ -10,13 +11,31 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         runInstanceOfMDVSProblem();
+        //runTests();
+    }
+
+    public static void runTests(){
+        Depot d1 = new Depot("d1", 5);
+        Depot d2 = new Depot("d2", 6);
+
+        Trip t1 = new Trip("t1", LocalTime.parse("18:00"), LocalTime.parse("20:30") );
+        Trip t2 = new Trip("t2", LocalTime.parse("13:00"), LocalTime.parse("17:30") );
+
+        Route  route = new Route();
+        route.addLocation(d1);
+        route.addLocation(t1);
+        route.addLocation(t2);
+        route.addLocation(d2);
+
+       // System.out.println(route.isFeasible());
+
     }
 
 
     public static void runInstanceOfMDVSProblem(){
         Problem problem = new Problem();
-        Depot d1 = new Depot("d1", 2);
-        Depot d2 = new Depot("d2", 2);
+        Depot d1 = new Depot("d1", 1);
+        Depot d2 = new Depot("d2", 6);
 
         Trip t1 = new Trip("t1", LocalTime.parse("18:00"), LocalTime.parse("20:30") );
         Trip t2 = new Trip("t2", LocalTime.parse("13:00"), LocalTime.parse("17:30") );
@@ -39,8 +58,8 @@ public class Main {
 
         problem.setPairCost(t1, d1, Duration.ofMinutes(2));
         problem.setPairCost(t2, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t3, d1, Duration.ofMinutes(7));
-        problem.setPairCost(t4, d1, Duration.ofMinutes(60));
+        problem.setPairCost(t3, d1, Duration.ofMinutes(6));
+        problem.setPairCost(t4, d1, Duration.ofMinutes(5));
 
         problem.setPairCost(d2, t1, Duration.ofMinutes(60));
         problem.setPairCost(d2, t2, Duration.ofMinutes(20));
@@ -49,7 +68,7 @@ public class Main {
 
         problem.setPairCost(t1, d2, Duration.ofMinutes(9));
         problem.setPairCost(t2, d2, Duration.ofMinutes(50));
-        problem.setPairCost(t3, d2, Duration.ofMinutes(7));
+        problem.setPairCost(t3, d2, Duration.ofMinutes(5));
         problem.setPairCost(t4, d2, Duration.ofMinutes(25));
 
         problem.setPairCost(t1, t2, Duration.ofMinutes(5));
@@ -69,9 +88,9 @@ public class Main {
         problem.setPairCost(t4, t3, Duration.ofMinutes(8));
 
 
-        problem.print();
+        //problem.print();
         try{
-            problem.resolve();
+            problem.getSolution().print();
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

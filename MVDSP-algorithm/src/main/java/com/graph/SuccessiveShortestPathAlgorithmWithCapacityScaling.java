@@ -10,19 +10,24 @@ import java.util.function.Function;
 
 public class SuccessiveShortestPathAlgorithmWithCapacityScaling {
 
-    public static void resolve(Graph<Node, WeightEdge> graph){
+    public static Graph<Node, WeightEdge> resolve(Graph<Node, WeightEdge> graph){
+
+
+        MinimumCostFlowAlgorithm.MinimumCostFlow<WeightEdge> minimumCostFlow = getMinimumFlow(graph);
 
         System.out.println("Flow MAP::");
-        MinimumCostFlowAlgorithm.MinimumCostFlow<WeightEdge> minimumCostFlow = getMinimumFlow(graph);
         for(WeightEdge weightEdge : minimumCostFlow.getFlowMap().keySet()){
             System.out.println(weightEdge.toString() + " -> " + minimumCostFlow.getFlow(weightEdge));
         }
 
+        Graph <Node, WeightEdge> flowGraph = Mapping.createFlowGraph(graph, minimumCostFlow);
         try{
-            GraphPainter.paint(Mapping.createFlowGraph(graph, minimumCostFlow), "flow");
+            GraphPainter.paint(flowGraph, "flow");
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
+
+        return flowGraph;
     }
 
     private static MinimumCostFlowAlgorithm.MinimumCostFlow<WeightEdge> getMinimumFlow(Graph<Node, WeightEdge> graph){
@@ -34,7 +39,7 @@ public class SuccessiveShortestPathAlgorithmWithCapacityScaling {
 
 
         MinimumCostFlowProblem<Node, WeightEdge> minimumCostFlowProblem =
-                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl<Node, WeightEdge>(
+                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl<>(
                         graph,
                         supplyMap,
                         arcCapacityUpperBounds,

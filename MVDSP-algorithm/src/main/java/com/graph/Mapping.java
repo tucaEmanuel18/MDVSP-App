@@ -1,17 +1,14 @@
 package com.graph;
 
-import com.core.Depot;
-import com.core.Location;
-import com.core.Problem;
-import com.core.Trip;
+import com.core.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
+import java.lang.reflect.WildcardType;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Mapping {
 
@@ -53,12 +50,12 @@ public class Mapping {
                 // from depot source to trip startPoint
                 WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(depotSource, trip, depotToTripWeightEdge);
-                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairTime(depotSource.getLocation(), trip.getLocation()).toMinutes());
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairCost(depotSource.getLocation(), trip.getLocation()).toMinutes());
             }else{ //ending point
                 // from trip endPoint to depot sink
                 WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(trip, depotSink, tripToDepotWeightEdge);
-                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairTime(trip.getLocation(), depotSink.getLocation()).toMinutes());
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairCost(trip.getLocation(), depotSink.getLocation()).toMinutes());
             }
         }
 
@@ -92,12 +89,12 @@ public class Mapping {
                 // add weightEdgeWithBounders from depot source to trip startPoint
                 WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(depot, tripStart, depotToTripWeightEdge);
-                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairTime(depot.getLocation(), tripStart.getLocation()).toMinutes());
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairCost(depot.getLocation(), tripStart.getLocation()).toMinutes());
             }else{ // is depot sink
                 // add weightEdgeWithBounders from trip endPoint to depot sink
                 WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(tripEnd, depot, tripToDepotWeightEdge);
-                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairTime(tripEnd.getLocation(), depot.getLocation()).toMinutes());
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairCost(tripEnd.getLocation(), depot.getLocation()).toMinutes());
             }
         }
 
@@ -145,7 +142,7 @@ public class Mapping {
 
         // if feasible weightEdgeWithBounders if tripEndPoint.time + time between this two points <= tripStartPoint.time
         LocalTime tripEndPointTime = ((Trip)tripEndPoint.getLocation()).getEndingTime();
-        Duration  timeBetweenTheseTrips = problem.getPairTime(tripEndPoint.getLocation(), tripStartPoint.getLocation());
+        Duration  timeBetweenTheseTrips = problem.getPairCost(tripEndPoint.getLocation(), tripStartPoint.getLocation());
         LocalTime tripStartPointTime = ((Trip)tripStartPoint.getLocation()).getStartingTime();
 
         if((tripEndPointTime.plus(timeBetweenTheseTrips)).compareTo(tripStartPointTime) <= 0){
@@ -163,7 +160,7 @@ public class Mapping {
         }
         for(WeightEdge weightEdge : minimumCostFlow.getFlowMap().keySet()){
             if(minimumCostFlow.getFlow(weightEdge) > 0){
-                System.out.println("I need to add edge from " + weightEdge.getSourceNode() + " to " + weightEdge.getTargetNode() + " with flow "+ minimumCostFlow.getFlow(weightEdge));
+                //System.out.println("I need to add edge from " + weightEdge.getSourceNode() + " to " + weightEdge.getTargetNode() + " with flow "+ minimumCostFlow.getFlow(weightEdge));
                 flowGraph.addEdge((Node)weightEdge.getSourceNode(),
                         (Node)weightEdge.getTargetNode());
                 flowGraph.setEdgeWeight((Node)weightEdge.getSourceNode(),
@@ -171,6 +168,72 @@ public class Mapping {
             }
         }
         return flowGraph;
+    }
+
+
+    public static Graph<RouteNode, WeightEdge> createRepairBipartiteGraph(
+            List<Route> infesibleRoutes,
+            Problem problem,
+            Graph<Node, WeightEdge> problemGraph,
+            Map<Route, List<RouteFixation>> routesFixations,
+            Set<RouteNode> insertedNodes,
+            Set<RouteNode> insertedPrimeNodes){
+        Graph<RouteNode, WeightEdge> repairBipartiteGraph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
+        long count = 0;
+        for(Route route : infesibleRoutes){
+            RouteFixation selfRouteFixation = route.getFixation(problem);
+
+            if(!selfRouteFixation.isFixable()){
+                System.err.println("createRepairBipartiteGraph: In list of infeasible routes I receive a feasible route: " + route);
+                continue;
+            }
+
+            // For each route P , add two nodes P and P'
+            RouteNode newNode = new RouteNode("P" + count, route, false);
+            RouteNode newPrimeNode = new RouteNode("P" + count++, route, true);
+            repairBipartiteGraph.addVertex(newNode);
+            repairBipartiteGraph.addVertex(newPrimeNode);
+
+            // Save the selfRouteFixation
+            routesFixations.put(route, new ArrayList<>());
+            routesFixations.get(route).add(selfRouteFixation);
+
+            // Add edge between P and P'
+            repairBipartiteGraph.addEdge(newNode, newPrimeNode);
+            repairBipartiteGraph.setEdgeWeight(newNode, newPrimeNode, selfRouteFixation.getCostPenalty());
+
+            for(RouteNode anotherPrimeNode : insertedPrimeNodes){
+                RouteNode corespondentNode = anotherPrimeNode.getCorespondentNode();
+
+                RouteFixation pairRouteFixation = route.getFixation(anotherPrimeNode.getRoute(), problem, problemGraph);
+                if(pairRouteFixation.isFixable()){
+                    repairBipartiteGraph.addEdge(newNode, anotherPrimeNode);
+                    repairBipartiteGraph.setEdgeWeight(newNode, anotherPrimeNode, pairRouteFixation.getCostPenalty());
+
+                    routesFixations.get(route).add(pairRouteFixation);
+
+                    // add complementary edge
+
+                    RouteFixation reversePairRouteFixation = ((PairRouteFixation) pairRouteFixation).getReversePairFixation();
+
+                    repairBipartiteGraph.addEdge(corespondentNode, newPrimeNode);
+                    repairBipartiteGraph.setEdgeWeight(corespondentNode, newPrimeNode, reversePairRouteFixation.getCostPenalty());
+
+                    routesFixations.get(corespondentNode.getRoute()).add(reversePairRouteFixation);
+                }else{
+                    // The graph must be complete so if this pair of route is not Fixable, we add edge with Infinite cost between them
+                    repairBipartiteGraph.addEdge(newNode, anotherPrimeNode);
+                    repairBipartiteGraph.setEdgeWeight(newNode, anotherPrimeNode, Long.MAX_VALUE);
+
+                    repairBipartiteGraph.addEdge(corespondentNode, newPrimeNode);
+                    repairBipartiteGraph.setEdgeWeight(corespondentNode, newPrimeNode, Long.MAX_VALUE);
+
+                }
+            }
+            insertedNodes.add(newNode);
+            insertedPrimeNodes.add(newPrimeNode);
+        }
+        return repairBipartiteGraph;
     }
 
 
