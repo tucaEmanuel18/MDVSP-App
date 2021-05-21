@@ -14,48 +14,36 @@ public class GraphUtils {
         List<Route> feasibleRoutes = new ArrayList<>();
         List<Route> infeasibleRoutes = new ArrayList<>();
 
+        //Get list of routes from flow graph and separates these routes into feasible/infeasible routes
         Route.separateRoutes(feasibleRoutes, infeasibleRoutes, getRoutes(flowGraph));
 
-        System.out.println("Fesible Routes:");
-        for(Route feasibleRoute : feasibleRoutes){
-            System.out.println(feasibleRoute);
+        if(infeasibleRoutes.size() > 0) {
+            Map<Route, List<RouteFixation>> routesFixations = new HashMap<>();
+            Set<RouteNode> simpleNodesPartition = new HashSet<>();
+            Set<RouteNode> primeNodesPartition = new HashSet<>();
+
+            Graph<RouteNode, WeightEdge> bipartiteGraph = Mapping.createRepairBipartiteGraph(
+                    infeasibleRoutes, problem, problemGraph, routesFixations,
+                    simpleNodesPartition, primeNodesPartition);
+            try {
+                GraphPainter.routePaint(bipartiteGraph, "bipartiteGraph");
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+
+            Set<WeightEdge> edgesFromMatching =
+                    MinimalBipartitePerfectMatchingKuhnMunkres.resolve(
+                            bipartiteGraph, simpleNodesPartition, primeNodesPartition);
+
+            for (WeightEdge edge : edgesFromMatching) {
+                feasibleRoutes.add(repairRoute(
+                        (RouteNode) edge.getSourceNode(),
+                        (RouteNode) edge.getTargetNode(),
+                        routesFixations)
+                );
+            }
         }
 
-        System.out.println("Infesible Routes: ");
-        for(Route infeasibleRoute : infeasibleRoutes){
-            System.out.println(infeasibleRoute);
-        }
-
-        Map<Route, List<RouteFixation>> routesFixations = new HashMap<>();
-        Set<RouteNode> simpleNodesPartition = new HashSet<>();
-        Set<RouteNode> primeNodesPartition = new HashSet<>();
-
-        Graph<RouteNode, WeightEdge> bipartiteGraph = Mapping.createRepairBipartiteGraph(
-                infeasibleRoutes, problem, problemGraph, routesFixations,
-                simpleNodesPartition, primeNodesPartition);
-
-        try{
-            GraphPainter.routePaint(bipartiteGraph, "bipartiteGraph");
-        }catch(IOException e){
-            System.out.println(e.getMessage());
-        }
-
-        Set<WeightEdge> edgesFromMatching =
-            MinimalBipartitePerfectMatchingKuhnMunkres.resolve(
-                    bipartiteGraph, simpleNodesPartition, primeNodesPartition);
-
-        for(WeightEdge edge : edgesFromMatching){
-            feasibleRoutes.add(repairRoute(
-                    (RouteNode)edge.getSourceNode(),
-                    (RouteNode) edge.getTargetNode(),
-                    routesFixations)
-            );
-        }
-
-        System.out.println("Fesible Routes:");
-        for(Route feasibleRoute : feasibleRoutes){
-            System.out.println(feasibleRoute);
-        }
         return feasibleRoutes;
     }
 

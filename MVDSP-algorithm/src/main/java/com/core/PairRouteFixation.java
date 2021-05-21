@@ -35,12 +35,12 @@ public class PairRouteFixation extends RouteFixation{
 
     /**
      * Construct a PairRouteFixation
-     * @param isFixable
-     * @param costPenalty
-     * @param sourceRoute
-     * @param sourceChangePosition
-     * @param sinkRoute
-     * @param sinkChangePosition
+     * @param isFixable true - means: i will fix this route | false - means: is fixed or it can't be fixed
+     * @param costPenalty the penalty cost of repairing this route
+     * @param sourceRoute the route which will be repaired
+     * @param sourceChangePosition the position where we merge the sourceRoute with sinkRoute
+     * @param sinkRoute the corresponding infeasible route that allows the repair of the source route
+     * @param sinkChangePosition the position were we can merge source route to repair it
      */
     public PairRouteFixation(boolean isFixable, long costPenalty,
                              Route sourceRoute, int sourceChangePosition,
@@ -52,6 +52,11 @@ public class PairRouteFixation extends RouteFixation{
         this.sinkChangePosition = sinkChangePosition;
     }
 
+    /**
+     * If sourceRoute can be repaired by merging k->i part of sinkRoute at i->h part of sourceRoute =>
+     * => sinkRoute can be also repaired by merging h+1 -> j part of sourceRoute at j->k-1 part of sinkRout
+     * @return correspondent RouteFixation that repair sinkRoute
+     */
     public RouteFixation getReversePairFixation(){
         return  new PairRouteFixation(
                 this.isFixable(),
