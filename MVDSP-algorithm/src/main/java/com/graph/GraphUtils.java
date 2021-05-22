@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.util.*;
 
 public class GraphUtils {
-    public static List<Route> repairInfeasibleRoutes(Graph<Node, WeightEdge> flowGraph, Problem problem, Graph<Node, WeightEdge> problemGraph){
+    /*public static List<Route> repairInfeasibleRoutes(Graph<Node, WeightEdge> flowGraph, Problem problem, Graph<Node, WeightEdge> problemGraph){
         List<Route> feasibleRoutes = new ArrayList<>();
         List<Route> infeasibleRoutes = new ArrayList<>();
 
         //Get list of routes from flow graph and separates these routes into feasible/infeasible routes
         Route.separateRoutes(feasibleRoutes, infeasibleRoutes, getRoutes(flowGraph));
 
+        // repair the infeasible routes
         if(infeasibleRoutes.size() > 0) {
             Map<Route, List<RouteFixation>> routesFixations = new HashMap<>();
             Set<RouteNode> simpleNodesPartition = new HashSet<>();
@@ -43,7 +44,6 @@ public class GraphUtils {
                 );
             }
         }
-
         return feasibleRoutes;
     }
 
@@ -113,8 +113,7 @@ public class GraphUtils {
             }
         }
         return null;
-    }
-
+    }*/
 
     public static List<Route> getRoutes(Graph<Node, WeightEdge> flowGraph){
         List<Route> routes = new ArrayList<>();

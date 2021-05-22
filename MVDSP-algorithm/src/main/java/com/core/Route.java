@@ -81,7 +81,7 @@ public class Route{
         );
 
         // Add the duration between ending time of trip i and starting time of trip i + 1 for all the trips
-        for (int i = 1; i < route.size() - 3; ++i) {
+        for (int i = 1; i <= route.size() - 3; ++i) {
             if (route.get(i) instanceof Trip && route.get(i + 1) instanceof Trip) {
                 // add cost between t_i and t_i+1
                 cost = cost.plus(problem.getPairCost(route.get(i), route.get(i + 1)));
@@ -92,6 +92,19 @@ public class Route{
         // add cost for the last trip on this route
         if (route.get(route.size() - 2) instanceof Trip) {
             cost = cost.plus(((Trip) route.get(route.size() - 2)).getTripTimeCost());
+        }
+        return cost;
+    }
+
+    public Duration getCostWithoutTripsCost(Problem problem){
+        if (route.size() < 3) {
+            throw new IllegalArgumentException();
+        }
+        Duration cost =  Duration.ZERO;
+
+
+        for (int i = 0; i <= route.size() - 2; ++i) {
+            cost = cost.plus(problem.getPairCost(route.get(i), route.get(i+1)));
         }
         return cost;
     }

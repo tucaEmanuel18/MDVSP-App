@@ -169,7 +169,7 @@ public class Problem {
         //3. Repair the obtained solution to find a solution for our problem
         // -- in the obtained solution we can have routes that start from a depot and finish in another depot
         // -- repairing this solution means repairing this infeasible routes.
-        return new Solution(GraphUtils.repairInfeasibleRoutes(flowGraph, this, graph), this);
+        return new Solution(RouteFixation.repairSolution(flowGraph, this, graph), this);
     }
 
     /**

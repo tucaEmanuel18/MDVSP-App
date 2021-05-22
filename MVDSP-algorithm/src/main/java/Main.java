@@ -68,7 +68,7 @@ public class Main {
 
         problem.setPairCost(t1, d2, Duration.ofMinutes(9));
         problem.setPairCost(t2, d2, Duration.ofMinutes(50));
-        problem.setPairCost(t3, d2, Duration.ofMinutes(5));
+        problem.setPairCost(t3, d2, Duration.ofMinutes(60));
         problem.setPairCost(t4, d2, Duration.ofMinutes(25));
 
         problem.setPairCost(t1, t2, Duration.ofMinutes(5));
