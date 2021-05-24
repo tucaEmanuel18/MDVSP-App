@@ -2,7 +2,6 @@ import com.core.Depot;
 import com.core.Problem;
 import com.core.Solution;
 import com.core.Trip;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,14 +31,14 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(20));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(30));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(20));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(20));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(70, solution.getCostWithTripsCostZero(),
@@ -62,14 +61,14 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(20));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(30));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(20));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(20));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(80, solution.getCostWithTripsCostZero(),
@@ -92,14 +91,14 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(20));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(30));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(20));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(20));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(80, solution.getCostWithTripsCostZero(),
@@ -121,14 +120,14 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(10));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(15));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(15));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(20));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(20));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(55, solution.getCostWithTripsCostZero(),
@@ -150,14 +149,14 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(10));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(15));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(15));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(20));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(20));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(115, solution.getCostWithTripsCostZero(),
@@ -183,20 +182,20 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(30));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(45));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(45));
 
-        problem.setPairCost(d2, t1, Duration.ofMinutes(30));
-        problem.setPairCost(d2, t2, Duration.ofMinutes(10));
+        problem.setCost(d2, t1, Duration.ofMinutes(30));
+        problem.setCost(d2, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d2, Duration.ofMinutes(45));
-        problem.setPairCost(t2, d2, Duration.ofMinutes(20));
+        problem.setCost(t1, d2, Duration.ofMinutes(45));
+        problem.setCost(t2, d2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(50));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(50));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(60, solution.getCostWithTripsCostZero(),
@@ -221,20 +220,20 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(30));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(50));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(45));
+        problem.setCost(t1, d1, Duration.ofMinutes(50));
+        problem.setCost(t2, d1, Duration.ofMinutes(45));
 
-        problem.setPairCost(d2, t1, Duration.ofMinutes(40));
-        problem.setPairCost(d2, t2, Duration.ofMinutes(10));
+        problem.setCost(d2, t1, Duration.ofMinutes(40));
+        problem.setCost(d2, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d2, Duration.ofMinutes(45));
-        problem.setPairCost(t2, d2, Duration.ofMinutes(15));
+        problem.setCost(t1, d2, Duration.ofMinutes(45));
+        problem.setCost(t2, d2, Duration.ofMinutes(15));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(5));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(5));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(60, solution.getCostWithTripsCostZero(),
@@ -260,20 +259,20 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(30));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(10));
+        problem.setCost(t1, d1, Duration.ofMinutes(20));
+        problem.setCost(t2, d1, Duration.ofMinutes(10));
 
-        problem.setPairCost(d2, t1, Duration.ofMinutes(30));
-        problem.setPairCost(d2, t2, Duration.ofMinutes(10));
+        problem.setCost(d2, t1, Duration.ofMinutes(30));
+        problem.setCost(d2, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d2, Duration.ofMinutes(10));
-        problem.setPairCost(t2, d2, Duration.ofMinutes(20));
+        problem.setCost(t1, d2, Duration.ofMinutes(10));
+        problem.setCost(t2, d2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(50));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(50));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             solution.print();
@@ -300,20 +299,20 @@ public class SolutionTest {
         problem.addLocation(t1);
         problem.addLocation(t2);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(30));
+        problem.setCost(d1, t1, Duration.ofMinutes(10));
+        problem.setCost(d1, t2, Duration.ofMinutes(30));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(40));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(45));
+        problem.setCost(t1, d1, Duration.ofMinutes(40));
+        problem.setCost(t2, d1, Duration.ofMinutes(45));
 
-        problem.setPairCost(d2, t1, Duration.ofMinutes(500));
-        problem.setPairCost(d2, t2, Duration.ofMinutes(10));
+        problem.setCost(d2, t1, Duration.ofMinutes(500));
+        problem.setCost(d2, t2, Duration.ofMinutes(10));
 
-        problem.setPairCost(t1, d2, Duration.ofMinutes(45));
-        problem.setPairCost(t2, d2, Duration.ofMinutes(20));
+        problem.setCost(t1, d2, Duration.ofMinutes(45));
+        problem.setCost(t2, d2, Duration.ofMinutes(20));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(5));
-        problem.setPairCost(t2, t1, Duration.ofMinutes(90));
+        problem.setCost(t1, t2, Duration.ofMinutes(5));
+        problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
             assertEquals(60, solution.getCostWithTripsCostZero(),

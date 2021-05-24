@@ -131,10 +131,10 @@ public class PairRouteFixation extends RouteFixation {
      */
     private static long getPairPenaltyCost(Route route, int h, Route pairRoute, int k, Problem problem){
 
-        long routeActualEdge = problem.getPairCost(route.get(h), route.get(h + 1)).toMinutes();
-        long routeRepairEdge = problem.getPairCost(route.get(h), pairRoute.get(k)).toMinutes();
-        long pairRouteActualEdge = problem.getPairCost(pairRoute.get(k - 1), pairRoute.get(k)).toMinutes();
-        long pairRouteRepairEdge = problem.getPairCost(route.get(k - 1), pairRoute.get(h + 1)).toMinutes();
+        long routeActualEdge = problem.getCost(route.get(h), route.get(h + 1)).toMinutes();
+        long routeRepairEdge = problem.getCost(route.get(h), pairRoute.get(k)).toMinutes();
+        long pairRouteActualEdge = problem.getCost(pairRoute.get(k - 1), pairRoute.get(k)).toMinutes();
+        long pairRouteRepairEdge = problem.getCost(route.get(k - 1), pairRoute.get(h + 1)).toMinutes();
 
         return routeRepairEdge + pairRouteRepairEdge - routeActualEdge - pairRouteActualEdge;
     }

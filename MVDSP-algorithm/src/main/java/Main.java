@@ -1,12 +1,9 @@
 import com.core.Depot;
 import com.core.Problem;
-import com.core.Route;
 import com.core.Trip;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,12 +17,6 @@ public class Main {
 
         Trip t1 = new Trip("t1", LocalTime.parse("18:00"), LocalTime.parse("20:30") );
         Trip t2 = new Trip("t2", LocalTime.parse("13:00"), LocalTime.parse("17:30") );
-
-        Route  route = new Route();
-        route.addLocation(d1);
-        route.addLocation(t1);
-        route.addLocation(t2);
-        route.addLocation(d2);
 
        // System.out.println(route.isFeasible());
 
@@ -51,41 +42,41 @@ public class Main {
         problem.addLocation(t3);
         problem.addLocation(t4);
 
-        problem.setPairCost(d1, t1, Duration.ofMinutes(40));
-        problem.setPairCost(d1, t2, Duration.ofMinutes(5));
-        problem.setPairCost(d1, t3, Duration.ofMinutes(10));
-        problem.setPairCost(d1, t4, Duration.ofMinutes(15));
+        problem.setCost(d1, t1, Duration.ofMinutes(40));
+        problem.setCost(d1, t2, Duration.ofMinutes(5));
+        problem.setCost(d1, t3, Duration.ofMinutes(10));
+        problem.setCost(d1, t4, Duration.ofMinutes(15));
 
-        problem.setPairCost(t1, d1, Duration.ofMinutes(2));
-        problem.setPairCost(t2, d1, Duration.ofMinutes(20));
-        problem.setPairCost(t3, d1, Duration.ofMinutes(6));
-        problem.setPairCost(t4, d1, Duration.ofMinutes(5));
+        problem.setCost(t1, d1, Duration.ofMinutes(2));
+        problem.setCost(t2, d1, Duration.ofMinutes(20));
+        problem.setCost(t3, d1, Duration.ofMinutes(6));
+        problem.setCost(t4, d1, Duration.ofMinutes(5));
 
-        problem.setPairCost(d2, t1, Duration.ofMinutes(60));
-        problem.setPairCost(d2, t2, Duration.ofMinutes(20));
-        problem.setPairCost(d2, t3, Duration.ofMinutes(40));
-        problem.setPairCost(d2, t4, Duration.ofMinutes(5));
+        problem.setCost(d2, t1, Duration.ofMinutes(60));
+        problem.setCost(d2, t2, Duration.ofMinutes(20));
+        problem.setCost(d2, t3, Duration.ofMinutes(40));
+        problem.setCost(d2, t4, Duration.ofMinutes(5));
 
-        problem.setPairCost(t1, d2, Duration.ofMinutes(9));
-        problem.setPairCost(t2, d2, Duration.ofMinutes(50));
-        problem.setPairCost(t3, d2, Duration.ofMinutes(60));
-        problem.setPairCost(t4, d2, Duration.ofMinutes(25));
+        problem.setCost(t1, d2, Duration.ofMinutes(9));
+        problem.setCost(t2, d2, Duration.ofMinutes(50));
+        problem.setCost(t3, d2, Duration.ofMinutes(60));
+        problem.setCost(t4, d2, Duration.ofMinutes(25));
 
-        problem.setPairCost(t1, t2, Duration.ofMinutes(5));
-        problem.setPairCost(t1, t3, Duration.ofMinutes(7));
-        problem.setPairCost(t1, t4, Duration.ofMinutes(2));
+        problem.setCost(t1, t2, Duration.ofMinutes(5));
+        problem.setCost(t1, t3, Duration.ofMinutes(7));
+        problem.setCost(t1, t4, Duration.ofMinutes(2));
 
-        problem.setPairCost(t2, t1, Duration.ofMinutes(25));
-        problem.setPairCost(t2, t3, Duration.ofMinutes(7));
-        problem.setPairCost(t2, t4, Duration.ofMinutes(9));
+        problem.setCost(t2, t1, Duration.ofMinutes(25));
+        problem.setCost(t2, t3, Duration.ofMinutes(7));
+        problem.setCost(t2, t4, Duration.ofMinutes(9));
 
-        problem.setPairCost(t3, t1, Duration.ofMinutes(15));
-        problem.setPairCost(t3, t2, Duration.ofMinutes(9));
-        problem.setPairCost(t3, t4, Duration.ofMinutes(13));
+        problem.setCost(t3, t1, Duration.ofMinutes(15));
+        problem.setCost(t3, t2, Duration.ofMinutes(9));
+        problem.setCost(t3, t4, Duration.ofMinutes(13));
 
-        problem.setPairCost(t4, t1, Duration.ofMinutes(14));
-        problem.setPairCost(t4, t2, Duration.ofMinutes(10));
-        problem.setPairCost(t4, t3, Duration.ofMinutes(8));
+        problem.setCost(t4, t1, Duration.ofMinutes(14));
+        problem.setCost(t4, t2, Duration.ofMinutes(10));
+        problem.setCost(t4, t3, Duration.ofMinutes(8));
 
 
         //problem.print();

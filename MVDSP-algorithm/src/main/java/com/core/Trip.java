@@ -1,9 +1,7 @@
 package com.core;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAmount;
 
 public class Trip extends Location{
     private LocalTime startingTime;

@@ -1,17 +1,17 @@
 package com.graph;
 
-import com.core.*;
-import com.repair.PairRouteFixation;
-import com.repair.RouteFixation;
+import com.core.Depot;
+import com.core.Location;
+import com.core.Problem;
+import com.core.Trip;
 import org.jgrapht.Graph;
-import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 
-public class Mapping {
+public class ProblemMapping {
 
     public static Graph<Node, WeightEdge> createGraph(Problem problem){
         Graph<Node, WeightEdge> graph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
@@ -51,12 +51,12 @@ public class Mapping {
                 // from depot source to trip startPoint
                 WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(depotSource, trip, depotToTripWeightEdge);
-                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairCost(depotSource.getLocation(), trip.getLocation()).toMinutes());
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getCost(depotSource.getLocation(), trip.getLocation()).toMinutes());
             }else{ //ending point
                 // from trip endPoint to depot sink
                 WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(trip, depotSink, tripToDepotWeightEdge);
-                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairCost(trip.getLocation(), depotSink.getLocation()).toMinutes());
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getCost(trip.getLocation(), depotSink.getLocation()).toMinutes());
             }
         }
 
@@ -90,12 +90,12 @@ public class Mapping {
                 // add weightEdgeWithBounders from depot source to trip startPoint
                 WeightEdge depotToTripWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(depot, tripStart, depotToTripWeightEdge);
-                graph.setEdgeWeight(depotToTripWeightEdge, problem.getPairCost(depot.getLocation(), tripStart.getLocation()).toMinutes());
+                graph.setEdgeWeight(depotToTripWeightEdge, problem.getCost(depot.getLocation(), tripStart.getLocation()).toMinutes());
             }else{ // is depot sink
                 // add weightEdgeWithBounders from trip endPoint to depot sink
                 WeightEdge tripToDepotWeightEdge = new BoundedWeightEdge(0, 1);
                 graph.addEdge(tripEnd, depot, tripToDepotWeightEdge);
-                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getPairCost(tripEnd.getLocation(), depot.getLocation()).toMinutes());
+                graph.setEdgeWeight(tripToDepotWeightEdge, problem.getCost(tripEnd.getLocation(), depot.getLocation()).toMinutes());
             }
         }
 
@@ -105,14 +105,14 @@ public class Mapping {
                 if(isFeasibleEdge(otherTrip, tripStart, problem)){
                     WeightEdge otherTripToThisTrip =  new BoundedWeightEdge(0, 1);
                     graph.addEdge(otherTrip, tripStart, otherTripToThisTrip);
-                    graph.setEdgeWeight(otherTripToThisTrip, problem.getPairCost(otherTrip.getLocation(), tripStart.getLocation()).toMinutes());
+                    graph.setEdgeWeight(otherTripToThisTrip, problem.getCost(otherTrip.getLocation(), tripStart.getLocation()).toMinutes());
                 }
             }else{
                 // add feasible edges from this trip endPoint to all trips startPoints
                 if(isFeasibleEdge(tripEnd, otherTrip, problem)){
                     WeightEdge thisTripToOtherTrip = new BoundedWeightEdge(0, 1);
                     graph.addEdge(tripEnd, otherTrip, thisTripToOtherTrip);
-                    graph.setEdgeWeight(thisTripToOtherTrip, problem.getPairCost(tripEnd.getLocation(), otherTrip.getLocation()).toMinutes());
+                    graph.setEdgeWeight(thisTripToOtherTrip, problem.getCost(tripEnd.getLocation(), otherTrip.getLocation()).toMinutes());
                 }
             }
         }
@@ -143,7 +143,7 @@ public class Mapping {
 
         // if feasible weightEdgeWithBounders if tripEndPoint.time + time between this two points <= tripStartPoint.time
         LocalTime tripEndPointTime = ((Trip)tripEndPoint.getLocation()).getEndingTime();
-        Duration  timeBetweenTheseTrips = problem.getPairCost(tripEndPoint.getLocation(), tripStartPoint.getLocation());
+        Duration  timeBetweenTheseTrips = problem.getCost(tripEndPoint.getLocation(), tripStartPoint.getLocation());
         LocalTime tripStartPointTime = ((Trip)tripStartPoint.getLocation()).getStartingTime();
 
         if((tripEndPointTime.plus(timeBetweenTheseTrips)).compareTo(tripStartPointTime) <= 0){
@@ -152,24 +152,4 @@ public class Mapping {
             return false;
         }
     }
-
-
-    public static Graph<Node, WeightEdge> createFlowGraph(Graph<Node, WeightEdge> graph, MinimumCostFlowAlgorithm.MinimumCostFlow<WeightEdge> minimumCostFlow){
-        Graph<Node, WeightEdge> flowGraph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
-        for(Node node : graph.vertexSet()){
-            flowGraph.addVertex(node);
-        }
-        for(WeightEdge weightEdge : minimumCostFlow.getFlowMap().keySet()){
-            if(minimumCostFlow.getFlow(weightEdge) > 0){
-                //System.out.println("I need to add edge from " + weightEdge.getSourceNode() + " to " + weightEdge.getTargetNode() + " with flow "+ minimumCostFlow.getFlow(weightEdge));
-                flowGraph.addEdge((Node)weightEdge.getSourceNode(),
-                        (Node)weightEdge.getTargetNode());
-                flowGraph.setEdgeWeight((Node)weightEdge.getSourceNode(),
-                        (Node)weightEdge.getTargetNode(), minimumCostFlow.getFlow(weightEdge));
-            }
-        }
-        return flowGraph;
-    }
-
-
 }

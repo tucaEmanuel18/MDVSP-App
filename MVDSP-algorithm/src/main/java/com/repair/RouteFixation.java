@@ -3,8 +3,6 @@ package com.repair;
 import com.core.Problem;
 import com.core.Route;
 
-import java.util.*;
-
 public abstract class RouteFixation {
     /**
      * true - means: i will fix this route

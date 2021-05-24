@@ -1,13 +1,5 @@
 package com.core;
 
-import com.graph.GraphUtils;
-import com.graph.Node;
-import com.graph.WeightEdge;
-import com.repair.PairRouteFixation;
-import com.repair.RouteFixation;
-import com.repair.SelfRouteFixation;
-import org.jgrapht.Graph;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +10,6 @@ public class Route{
      */
     List<Location> route;
 
-    /**
-     * Construc a new Route
-     */
     public Route() {
         route = new ArrayList<>();
     }
@@ -74,9 +63,9 @@ public class Route{
         }
 
         // Add the duration between depot and first trip
-        Duration cost = problem.getPairCost(route.get(0), route.get(1));
+        Duration cost = problem.getCost(route.get(0), route.get(1));
         // Add the duration between last trip and depot
-        cost = cost.plus(problem.getPairCost(route.get(route.size() - 2),
+        cost = cost.plus(problem.getCost(route.get(route.size() - 2),
                 route.get(route.size() - 1))
         );
 
@@ -84,7 +73,7 @@ public class Route{
         for (int i = 1; i <= route.size() - 3; ++i) {
             if (route.get(i) instanceof Trip && route.get(i + 1) instanceof Trip) {
                 // add cost between t_i and t_i+1
-                cost = cost.plus(problem.getPairCost(route.get(i), route.get(i + 1)));
+                cost = cost.plus(problem.getCost(route.get(i), route.get(i + 1)));
                 // add cost of trip t_i
                 cost = cost.plus(((Trip) route.get(i)).getTripTimeCost());
             }
@@ -104,7 +93,7 @@ public class Route{
 
 
         for (int i = 0; i <= route.size() - 2; ++i) {
-            cost = cost.plus(problem.getPairCost(route.get(i), route.get(i+1)));
+            cost = cost.plus(problem.getCost(route.get(i), route.get(i+1)));
         }
         return cost;
     }

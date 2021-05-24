@@ -1,12 +1,12 @@
 package com.graph;
 
-import com.core.*;
-import com.graphPainter.GraphPainter;
+import com.core.Depot;
+import com.core.Location;
+import com.core.Route;
 import org.jgrapht.Graph;
 import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.GraphIterator;
 
-import java.io.IOException;
 import java.util.*;
 
 public class GraphUtils {

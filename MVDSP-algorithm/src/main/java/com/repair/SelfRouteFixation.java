@@ -1,9 +1,7 @@
 package com.repair;
 
-import com.core.Location;
 import com.core.Problem;
 import com.core.Route;
-import com.repair.RouteFixation;
 
 public class SelfRouteFixation extends RouteFixation {
     /**
@@ -70,14 +68,14 @@ public class SelfRouteFixation extends RouteFixation {
 
         if(changeSource){
             //cost(route[0], route[1]
-            actualEdgeCost = problem.getPairCost(route.get(0), route.get(1)).toMinutes();
+            actualEdgeCost = problem.getCost(route.get(0), route.get(1)).toMinutes();
             // cost(route[size - 1], route[1])
-            repairEdgeCost = problem.getPairCost(route.get(size - 1), route.get(1)).toMinutes();
+            repairEdgeCost = problem.getCost(route.get(size - 1), route.get(1)).toMinutes();
         }else{
             // cost(route[size - 2], route[size - 1])
-            actualEdgeCost = problem.getPairCost(route.get(size - 2), route.get(size - 1)).toMinutes();
+            actualEdgeCost = problem.getCost(route.get(size - 2), route.get(size - 1)).toMinutes();
             // cost(route[size - 2], route[0])
-            repairEdgeCost = problem.getPairCost(route.get(size - 2), route.get(0)).toMinutes();
+            repairEdgeCost = problem.getCost(route.get(size - 2), route.get(0)).toMinutes();
         }
         return repairEdgeCost - actualEdgeCost;
     }

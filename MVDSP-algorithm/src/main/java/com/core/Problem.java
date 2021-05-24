@@ -1,7 +1,10 @@
 package com.core;
 
-import com.graph.*;
+import com.flow.FlowGraph;
+import com.graph.ProblemMapping;
+import com.graph.WeightEdge;
 import com.repair.RepairSolution;
+import com.graph.Node;
 import org.jgrapht.Graph;
 
 import java.io.IOException;
@@ -13,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Problem {
-    /**
-     * The max value of a Duration - it will be use to replace the cost between two locations for which is not defined a cost yet
-     */
     private static final Duration DURATION_INFINIT = ChronoUnit.FOREVER.getDuration();
     /**
      * The list of locations (Depots and Trips) from this problem
@@ -25,18 +25,9 @@ public class Problem {
      * The data structure which store the cost between any two location from this problem
      */
     private Map<LocationPair, Duration> costMap;
-    /**
-     * Number of depots (it will be use for some checks)
-     */
     private Integer numberOfDepots = 0 ;
-    /**
-     * Number of trips (it will be use for some checks)
-     */
     private Integer numberOfTrips = 0;
 
-    /**
-     * the graph associated with the problem
-     */
     private Graph<Node, WeightEdge> graph;
     /**
      * Check if the problem was modified after generate the problem graph
@@ -98,7 +89,7 @@ public class Problem {
      * @param destination -> the end location of this measurement
      * @param cost -> the duration between these locations
      */
-    public void setPairCost(Location source, Location destination, Duration cost){
+    public void setCost(Location source, Location destination, Duration cost){
         costMap.replace(new LocationPair(source, destination), cost);
         isModified = true;
     }
@@ -131,7 +122,7 @@ public class Problem {
      * @return the cost between two locations
      * !!! getPairCost(trip, trip) =  max(travelTime, travelTime + waitingTime)
      */
-    public Duration getPairCost(Location source, Location destination) {
+    public Duration getCost(Location source, Location destination) {
         if (source instanceof Trip && destination instanceof Trip) { // trip -> trip
                 // max(travelTime, travelTime + waitingTime)
                 return maxBetweenDurations(
@@ -145,7 +136,7 @@ public class Problem {
 
     public Graph<Node, WeightEdge> getGraph(){
         if(this.graph == null || isModified){
-           graph = Mapping.createGraph(this);
+           graph = ProblemMapping.createGraph(this);
            isModified = false;
         }
         return graph;
@@ -182,12 +173,12 @@ public class Problem {
 
         //2. Solve the new problem with the successive shortest path algorithm with capacity scaling
         // (find the minimum cost flow)
-        Graph<Node, WeightEdge> flowGraph = SuccessiveShortestPathAlgorithmWithCapacityScaling.resolve(graph);
+        FlowGraph flowGraph = new FlowGraph(graph);
 
         //3. Repair the obtained solution to find a solution for our problem
         // -- in the obtained solution we can have routes that start from a depot and finish in another depot
         // -- repairing this solution means repairing this infeasible routes.
-        RepairSolution repairSolution  = new RepairSolution(flowGraph, this);
+        RepairSolution repairSolution  = new RepairSolution(flowGraph.getFlowGraph(), this);
         return new Solution(repairSolution.getRepairedSolution(),this);
     }
 
