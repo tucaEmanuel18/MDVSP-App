@@ -1,11 +1,12 @@
 package com.graph;
 
 import com.core.*;
+import com.repair.PairRouteFixation;
+import com.repair.RouteFixation;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
-import java.lang.reflect.WildcardType;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
@@ -168,72 +169,6 @@ public class Mapping {
             }
         }
         return flowGraph;
-    }
-
-
-    public static Graph<RouteNode, WeightEdge> createRepairBipartiteGraph(
-            List<Route> infesibleRoutes,
-            Problem problem,
-            Graph<Node, WeightEdge> problemGraph,
-            Map<Route, List<RouteFixation>> routesFixations,
-            Set<RouteNode> insertedNodes,
-            Set<RouteNode> insertedPrimeNodes){
-        Graph<RouteNode, WeightEdge> repairBipartiteGraph = new DefaultDirectedWeightedGraph<>(WeightEdge.class);
-        long count = 0;
-        for(Route route : infesibleRoutes){
-            RouteFixation selfRouteFixation = route.getFixation(problem);
-
-            if(!selfRouteFixation.isFixable()){
-                System.err.println("createRepairBipartiteGraph: In list of infeasible routes I receive a feasible route: " + route);
-                continue;
-            }
-
-            // For each route P , add two nodes P and P'
-            RouteNode newNode = new RouteNode("P" + count, route, false);
-            RouteNode newPrimeNode = new RouteNode("P" + count++, route, true);
-            repairBipartiteGraph.addVertex(newNode);
-            repairBipartiteGraph.addVertex(newPrimeNode);
-
-            // Save the selfRouteFixation
-            routesFixations.put(route, new ArrayList<>());
-            routesFixations.get(route).add(selfRouteFixation);
-
-            // Add edge between P and P'
-            repairBipartiteGraph.addEdge(newNode, newPrimeNode);
-            repairBipartiteGraph.setEdgeWeight(newNode, newPrimeNode, selfRouteFixation.getCostPenalty());
-
-            for(RouteNode anotherPrimeNode : insertedPrimeNodes){
-                RouteNode corespondentNode = anotherPrimeNode.getCorespondentNode();
-
-                RouteFixation pairRouteFixation = route.getFixation(anotherPrimeNode.getRoute(), problem, problemGraph);
-                if(pairRouteFixation.isFixable()){
-                    repairBipartiteGraph.addEdge(newNode, anotherPrimeNode);
-                    repairBipartiteGraph.setEdgeWeight(newNode, anotherPrimeNode, pairRouteFixation.getCostPenalty());
-
-                    routesFixations.get(route).add(pairRouteFixation);
-
-                    // add complementary edge
-
-                    RouteFixation reversePairRouteFixation = ((PairRouteFixation) pairRouteFixation).getReversePairFixation();
-
-                    repairBipartiteGraph.addEdge(corespondentNode, newPrimeNode);
-                    repairBipartiteGraph.setEdgeWeight(corespondentNode, newPrimeNode, reversePairRouteFixation.getCostPenalty());
-
-                    routesFixations.get(corespondentNode.getRoute()).add(reversePairRouteFixation);
-                }else{
-                    // The graph must be complete so if this pair of route is not Fixable, we add edge with Infinite cost between them
-                    repairBipartiteGraph.addEdge(newNode, anotherPrimeNode);
-                    repairBipartiteGraph.setEdgeWeight(newNode, anotherPrimeNode, Long.MAX_VALUE);
-
-                    repairBipartiteGraph.addEdge(corespondentNode, newPrimeNode);
-                    repairBipartiteGraph.setEdgeWeight(corespondentNode, newPrimeNode, Long.MAX_VALUE);
-
-                }
-            }
-            insertedNodes.add(newNode);
-            insertedPrimeNodes.add(newPrimeNode);
-        }
-        return repairBipartiteGraph;
     }
 
 

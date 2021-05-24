@@ -1,7 +1,7 @@
 package com.core;
 
 import com.graph.*;
-import com.graphPainter.GraphPainter;
+import com.repair.RepairSolution;
 import org.jgrapht.Graph;
 
 import java.io.IOException;
@@ -34,6 +34,14 @@ public class Problem {
      */
     private Integer numberOfTrips = 0;
 
+    /**
+     * the graph associated with the problem
+     */
+    private Graph<Node, WeightEdge> graph;
+    /**
+     * Check if the problem was modified after generate the problem graph
+     */
+    private boolean isModified = false;
     /**
      * Construct a new Problem object
      */
@@ -68,6 +76,7 @@ public class Problem {
 
         }
         locations.add(newLocation);
+        isModified = true;
         if(newLocation instanceof Depot){
             numberOfDepots++;
         }
@@ -91,6 +100,7 @@ public class Problem {
      */
     public void setPairCost(Location source, Location destination, Duration cost){
         costMap.replace(new LocationPair(source, destination), cost);
+        isModified = true;
     }
 
     /**
@@ -99,6 +109,7 @@ public class Problem {
      * @param destination -> the end location of this measurement
      * @return costMap value between these location
      */
+    //TODO getPairCost -> getCost
     private Duration getPairTime(Location source, Location destination){
         if(source == null || destination == null){
             throw new NullPointerException();
@@ -132,6 +143,13 @@ public class Problem {
         return getPairTime(source, destination);
     }
 
+    public Graph<Node, WeightEdge> getGraph(){
+        if(this.graph == null || isModified){
+           graph = Mapping.createGraph(this);
+           isModified = false;
+        }
+        return graph;
+    }
     /**
      * Check if we have at least one depot and at least one trip
      * @return `true` if the above condition if checked and false otherwise
@@ -158,7 +176,7 @@ public class Problem {
             return null;
         }
         //1. Map our problem to a minimum-cost circulation problem
-        Graph<Node, WeightEdge> graph = Mapping.createGraph(this);
+        Graph<Node, WeightEdge> graph = this.getGraph();
 
         //GraphPainter.paint(graph);
 
@@ -169,38 +187,8 @@ public class Problem {
         //3. Repair the obtained solution to find a solution for our problem
         // -- in the obtained solution we can have routes that start from a depot and finish in another depot
         // -- repairing this solution means repairing this infeasible routes.
-        return new Solution(RouteFixation.repairSolution(flowGraph, this, graph), this);
-    }
-
-    /**
-     * Calculate the penalty cost of repairing this routes with switch in (h = sourceChangePosition, k = sinkChangePosition) point
-     * @param sourceRoute an infeasible route (i-t1, t1-t2, ...-..., tp-j)
-     * @param h = sourceChangePosition, a point in sourceRoute were is possible to repair this route
-     * @param sinkRoute an complementary infeasible route (j-f1, f1-f2, -...-, fq-i)
-     * @param k = sinkChangePosition, a point in sinkRoute were is possible to repair this route
-     * @return the penalty cost of repairing this routes: c(h,k) + c(k-1, h+1) - c(h, h+1) - c(k - 1, k)
-     */
-    public long getPairPenaltyCost(List<Location> sourceRoute, int h,
-                                   List<Location> sinkRoute, int k){
-
-        return getPairCost(sourceRoute.get(h), sinkRoute.get(k)).toMinutes()
-                + getPairCost(sourceRoute.get(h + 1), sinkRoute.get(k + 1)).toMinutes()
-                - getPairCost(sourceRoute.get(h), sourceRoute.get(h + 1)).toMinutes()
-                - getPairCost(sinkRoute.get(k + 1), sinkRoute.get(k)).toMinutes();
-    }
-
-    /**
-     * Get max duration between two durations
-     * @param d1
-     * @param d2
-     * @return max duration between two durations
-     */
-    private Duration maxBetweenDurations(Duration d1, Duration d2){
-        if(d1.compareTo(d2) >= 0){
-            return d1;
-        }else{
-            return d2;
-        }
+        RepairSolution repairSolution  = new RepairSolution(flowGraph, this);
+        return new Solution(repairSolution.getRepairedSolution(),this);
     }
 
     /**
@@ -227,5 +215,23 @@ public class Problem {
                 ", costMap=" + costMap +
                 '}';
     }
+
+
+    /////////////////////////////////////////////////////////
+
+    /**
+     * Get max duration between two durations
+     * @param d1
+     * @param d2
+     * @return max duration between two durations
+     */
+    private Duration maxBetweenDurations(Duration d1, Duration d2){
+        if(d1.compareTo(d2) >= 0){
+            return d1;
+        }else{
+            return d2;
+        }
+    }
+//////////////////////////////////////////////////////////////////
 
 }
