@@ -82,7 +82,69 @@ If we cand find a pair (h, k) 1 <= h <= p, 1 <= k <= q such that th->tk, tk-1 ->
       
  ![repairing_pair_of_subtours](https://user-images.githubusercontent.com/59021794/119508129-25a18680-bd78-11eb-944a-31cbe44b4750.png)
 
+-> To find if a infeasible route should repair self or in pair(and with which other routes) we will create two bipartite graph as follows:
 
+    S = {P: P is an infeasible subtour}
+    T = {P':P is an infeasible soubtour}
+The set of edges is: {P1P2' if is a compatible pair of infeasible subtours} U {PP': P is an infeasible subtour}
+
+In first bipartiteGraph we set edges PP' weight =  penalty cost of changing source depot
+In second biparatiteGraph we set edges PP'  weight = penalty cost of changing sink depot
+In both bipartiteGraphs we set edges P1P2' weight = the pair (h, k) with minimum penalty cost
+
+We will compute minimal weight bipartit perfect matching with Kuhn Munkres algorithm for both bipartiteGraphs and choose the graph which has minimum weight. 
+
+After this we can repair the infeasible edges with selfFixation or PairFixation conformable to the matching obtained result.
+
+
+2. **MDVSP-API**
+
+-> POST "/MDVSP/depot" : add a new depot in problem
+      {
+        "name" = "d2",
+        "numberOfVehicles" = 5,
+        "latitude" : 2454.343435,
+        "longitute" : 657685.2333
+      }
+
+-> POST "MDVSP/trip" : add a new trip in problem
+      Body:
+  {
+    "name": "TestTrip",
+    "startingTime": "12:30:00",
+    "startPosition": {
+        "latitude": 222.33,
+        "longitude": 5555.245
+    },
+    "endPosition": {
+        "latitude": 123.123,
+        "longitude": 321.321
+    }
+}
+
+-> GET "/MDVSP": get list of routes that represent the solution of actual state of Problem
+  
+  Response Like :
+  {
+    "routes" : [ 
+         {
+            "locations": ["d3", "d5", "d7", "d3"],
+            "cost" : 873
+          },
+          {
+            "locations": ["d3", "d5", "d7", "d3"],
+            "cost" : 873
+          }
+      ]
+  "totalCost" : 234567 
+}
+
+
+3. *User Interface:*
+
+-> React Map GL : based on  MapBox
+![interfata0](https://user-images.githubusercontent.com/59021794/119515238-5dabc800-bd7e-11eb-804d-184844ec3063.png)
+![interfata1](https://user-images.githubusercontent.com/59021794/119515257-61d7e580-bd7e-11eb-8b90-1607b68ade1f.png)
 
 
 4. **References:**
