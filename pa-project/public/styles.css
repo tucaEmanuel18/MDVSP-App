@@ -1,0 +1,34 @@
+body {
+  margin: 0;
+}
+
+.marker-btn {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+.testdiv {
+  background-color: pink;
+  border-radius: 100%;
+}
+
+.solveButton {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #16272f;
+  background-color: #009933;
+  position: fixed;
+  top: 4.5%;
+  left: 45%;
+  width: 15vw;
+  padding: 0.25rem 0;
+  line-height: 3.6rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 10%;
+}
