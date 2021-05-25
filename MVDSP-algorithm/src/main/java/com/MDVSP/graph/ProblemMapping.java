@@ -34,6 +34,7 @@ public class ProblemMapping {
         // For each depot Di, add two nodes in V(G), representing a source and a sing
         // The capacity for source is number of available vehicles (the supply);
         // The capacity for sink is negate of number of available vehicles (the demand);
+
         // add the depot source vertex
         Node depotSource = new Node(newDepot, newDepot.getNumberOfVehicles(), true);
         graph.addVertex(depotSource);

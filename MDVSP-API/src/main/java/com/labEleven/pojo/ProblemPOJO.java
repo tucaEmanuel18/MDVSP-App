@@ -4,6 +4,7 @@ import com.MDVSP.core.*;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,12 +112,14 @@ public class ProblemPOJO {
         for(TripPOJO tripPOJO : trips){
             //2.1 create the actual new trip
             Trip actualTrip = new Trip(tripPOJO.getName(), tripPOJO.getStartingTime(), tripPOJO.getEndingTime());
+            problem.addLocation(actualTrip);
+
 
             //2.2 set cost between this new trip and others location already inserted in problem
-            for(Location location : problem.getLocations()){
-                if(location instanceof Depot){
+            for(Location location : problem.getLocations()) {
+                if (location instanceof Depot) {
                     //2.2.1 Obtain pojo correspondent of location
-                    LocationPOJO depotPOJO = new DepotPOJO(location.getName(), 0, 0,0);
+                    LocationPOJO depotPOJO = new DepotPOJO(location.getName(), 0, 0, 0);
 
                     //2.2.2 obtain costs
                     Duration costFromDepotToTrip = distancesMap.get(new LocationPairPOJO(depotPOJO, tripPOJO));
@@ -125,11 +128,14 @@ public class ProblemPOJO {
                     //2.2.3 set costs
                     problem.setCost(location, actualTrip, costFromDepotToTrip);
                     problem.setCost(actualTrip, location, costFromTripToDepot);
-                }else{
+                } else {
                     //2.2.1 Obtain pojo correspondent of inserted trip
-                    LocationPOJO insertedPOJO = new TripPOJO(location.getName(), null, 0,0, 0, 0);
+                    LocationPOJO insertedPOJO = new TripPOJO(location.getName(), LocalTime.parse("00:00"), 0, 0, 0, 0);
 
-
+                    // if is same trip -> continue
+                    if(insertedPOJO.getName().equals(tripPOJO.getName())){
+                        continue;
+                    }
                     //2.2.2 obtain costs
                     Duration costFromInsertedToThis = distancesMap.get(new LocationPairPOJO(insertedPOJO, tripPOJO));
                     Duration costFromThisToInserted = distancesMap.get(new LocationPairPOJO(tripPOJO, insertedPOJO));
@@ -139,8 +145,6 @@ public class ProblemPOJO {
                     problem.setCost(actualTrip, location, costFromThisToInserted);
                 }
             }
-            //2.3 add actual new trip to problem
-            problem.addLocation(actualTrip);
         }
 
         return problem;

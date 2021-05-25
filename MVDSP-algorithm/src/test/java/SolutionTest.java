@@ -206,7 +206,7 @@ public class SolutionTest {
         }
     }
 
-    // Assertul meu nu e bun
+   /* // Assertul meu nu e bun
     @Test
     @DisplayName("Test2.1.2: 2 depot with 1 - 1 vehicles | 2 trips")
     public void given2DepotAnd2TripsWhenEdgeBetweenTripsIsFeasibleAndHaveOneOneVehiclesThenGetOptimumSolution(){
@@ -242,10 +242,10 @@ public class SolutionTest {
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
 
-    // Assertul meu nu e bun
+   /* // Assertul meu nu e bun
     @Test
     @DisplayName("Test2.1.2: 2 depot with 1 - 1 vehicles | 2 trips")
     public void given2DepotAnd2TripsWhenIsOptimalToChangeDepotsThenGetOptimumSolution(){
@@ -282,11 +282,11 @@ public class SolutionTest {
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
 
 
-    @Test
+ /*   @Test
     @DisplayName("Test2.1.2: 2 depot with 1 - 1 vehicles | 2 trips")
     public void proba(){
         Depot d1 = new Depot("d1", 2);
@@ -321,7 +321,7 @@ public class SolutionTest {
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
 
 
