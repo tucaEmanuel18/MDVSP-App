@@ -1,7 +1,7 @@
-import com.core.Depot;
-import com.core.Problem;
-import com.core.Solution;
-import com.core.Trip;
+import com.MDVSP.core.Depot;
+import com.MDVSP.core.Problem;
+import com.MDVSP.core.Solution;
+import com.MDVSP.core.Trip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +41,7 @@ public class SolutionTest {
         problem.setCost(t2, t1, Duration.ofMinutes(90));
         try{
             Solution solution = problem.getSolution();
+            solution.print();
             assertEquals(70, solution.getCostWithTripsCostZero(),
                     "The optimum cost should be 60 (10 + 20 + 30)");
         }catch(Exception e){
